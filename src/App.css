@@ -7,3 +7,17 @@ body, html {
   background-color: #111827;
   color: #ffffff;
 }
+
+table {
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid rgb(160 160 160);
+  padding: 8px 10px;
+}
+
+.w100 {
+  width: 100%;
+}
