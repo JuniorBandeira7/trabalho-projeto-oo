@@ -2,29 +2,36 @@ import Header from "../components/Header"
 import EditButton from "../components/EditButton"
 import RemoveButton from "../components/RemoveButton"
 import Button from "../components/Button"
-
-
-function Mes(mes, credito, debito, ano){
-    this.mes = mes
-    this.credito = credito
-    this.debito = debito
-    this.ano = ano
-}
-
-const mes1 = new Mes("Janeiro", 4000, 2000, 2024)
-const mes2 = new Mes("Fevereiro", 2000, 3000, 2024)
-const mes3 = new Mes("Março", 3000, 1000, 2024)
-const mes4 = new Mes("Abril", 10000, 3000, 2024)
-
-let meses = [mes1, mes2, mes3, mes4]
+import ButtonConfirm from "../components/ButtonConfirm"
+import { useState } from "react"
 
 export const Financial = () => {
-    const handleEdit = (mes) => {
-        alert(mes)
-    }
+    const [meses, setMeses] = useState([{ id: 1, mes: "Janeiro", credito: 1000, debito: 500, ano: 2024 },
+                                        { id: 2, mes: "Fevereiro", credito: 1200, debito: 400, ano: 2024 },
+                                        { id: 3, mes: "Março", credito: 3000, debito: 4000, ano: 2024 },
+                                        { id: 4, mes: "Abril", credito: 1200, debito: 400, ano: 2024 }
+                                    ])
+    const [editingMesId, setEditingMesId] = useState(null)
+    const [editedMes, setEditedMes] = useState({})
 
     const handleRemove = (mes) => {
-        alert(mes)
+        alert(typeof meses)
+    }
+
+    const handleEdit = (mesId) => {
+        setEditingMesId(mesId)
+        const mesToEdit = meses.find(mes => mes.id === mesId)
+        if (mesToEdit) {
+          setEditedMes({ ...mesToEdit })
+        }
+      }
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target
+        setEditedMes((prevMeses) => ({
+            ...prevMeses,
+            [name]: name === 'credito' || name === 'debito' ? parseFloat(value) : value
+        }))
     }
 
     return(
@@ -36,6 +43,7 @@ export const Financial = () => {
                         <strong>Financeiro</strong>
                     </caption>
                     <tr className="bg-gray-900">
+                        <th scope="col">Id</th>
                         <th scope="col">Mes</th>
                         <th scope="col">Credito</th>
                         <th scope="col">Debito</th>
@@ -44,15 +52,39 @@ export const Financial = () => {
                     </tr>
                     {meses.map((mes) =>(
                         <tr className={(mes.credito - mes.debito) < 0 ? "bg-red-900" : "bg-blue-900"}>
-                            <th scope="col">{mes.mes}</th>
-                            <th scope="col">{mes.credito}</th>
-                            <th scope="col">{mes.debito}</th>
-                            <th scope="col">{mes.ano}</th>
-                            <th scope="col">{mes.credito - mes.debito}</th>
-                            <th>
-                                <EditButton onClick={() => handleEdit(mes.name)}/>
-                                <RemoveButton onClick={() => handleRemove(mes.cost)}/>
-                            </th>
+                            {editingMesId === mes.id ? (
+                                <>
+                                    <th scope="col">{mes.id}</th>
+                                    <th scope="col"><input type="text" name="mes" value={editedMes.mes} onChange={handleInputChange} style={{color: "black"}}/></th>
+                                    <th scope="col"><input type="number" name="credito" value={editedMes.credito} onChange={handleInputChange} style={{color: "black"}}/></th>
+                                    <th scope="col"><input type="number" name="debito" value={editedMes.debito} onChange={handleInputChange} style={{color: "black"}}/></th>
+                                    <th scope="col"><input type="number" name="ano" value={editedMes.ano} onChange={handleInputChange} style={{color: "black"}}/></th>
+                                    <th scope="col">{mes.credito - mes.debito}</th>
+                                </>
+                            ):(
+                                <>
+                                    <th scope="col">{mes.id}</th>
+                                    <th scope="col">{mes.mes}</th>
+                                    <th scope="col">{mes.credito}</th>
+                                    <th scope="col">{mes.debito}</th>
+                                    <th scope="col">{mes.ano}</th>
+                                    <th scope="col">{mes.credito - mes.debito}</th>
+                                </>
+                            )}
+                            {editingMesId === mes.id ? (
+                                <>
+                                    <th>
+                                        <ButtonConfirm> Salvar </ButtonConfirm>
+                                    </th>
+                                </>
+                            ):(
+                                <>
+                                    <th>
+                                        <EditButton onClick={() => handleEdit(mes.id)}/>
+                                        <RemoveButton onClick={() => handleRemove(mes.cost)}/>
+                                    </th>
+                                </>
+                            )}
                         </tr>
                     ))}
                 </table>
