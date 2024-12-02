@@ -22,16 +22,34 @@ const initialItems = [
 
 export const Stock = () => {
     const [itens, setItens] = useState(initialItems)
+    const [isEditing, setIsEditing] = useState(null) // Armazena o ID do item sendo editado
+    const [editValues, setEditValues] = useState({ name: "", cost: "", qtd: "" })
 
-    // Função para editar (por enquanto só exibe o alerta)
-    const handleEdit = (item) => {
-        alert(`Editando: ${item.name}`)
+    // Função para iniciar o modo de edição
+    const startEditing = (item) => {
+        setIsEditing(item.id)
+        setEditValues({ name: item.name, cost: item.cost, qtd: item.qtd })
+    }
+
+    // Função para cancelar a edição
+    const cancelEditing = () => {
+        setIsEditing(null)
+        setEditValues({ name: "", cost: "", qtd: "" })
+    }
+
+    // Função para salvar as alterações
+    const saveEdit = (id) => {
+        setItens(
+            itens.map((item) =>
+                item.id === id ? { ...item, ...editValues } : item
+            )
+        )
+        cancelEditing()
     }
 
     // Função para remover um item
     const handleRemove = (id) => {
-        const updatedItems = itens.filter((item) => item.id !== id)
-        setItens(updatedItems)
+        setItens(itens.filter((item) => item.id !== id))
     }
 
     // Função para adicionar um novo item
@@ -58,18 +76,88 @@ export const Stock = () => {
                             <th scope="col">Nome</th>
                             <th scope="col">Custo</th>
                             <th scope="col">Quantidade</th>
+                            <th scope="col">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {itens.map((item) => (
                             <tr className="bg-gray-950" key={item.id}>
                                 <td>{item.id}</td>
-                                <td>{item.name}</td>
-                                <td>{item.cost.toFixed(2)}</td>
-                                <td>{item.qtd}</td>
                                 <td>
-                                    <EditButton onClick={() => handleEdit(item)} />
-                                    <RemoveButton onClick={() => handleRemove(item.id)} />
+                                    {isEditing === item.id ? (
+                                        <input
+                                            type="text"
+                                            value={editValues.name}
+                                            onChange={(e) =>
+                                                setEditValues({
+                                                    ...editValues,
+                                                    name: e.target.value,
+                                                })
+                                            }
+                                        />
+                                    ) : (
+                                        item.name
+                                    )}
+                                </td>
+                                <td>
+                                    {isEditing === item.id ? (
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={editValues.cost}
+                                            onChange={(e) =>
+                                                setEditValues({
+                                                    ...editValues,
+                                                    cost: parseFloat(e.target.value),
+                                                })
+                                            }
+                                        />
+                                    ) : (
+                                        item.cost.toFixed(2)
+                                    )}
+                                </td>
+                                <td>
+                                    {isEditing === item.id ? (
+                                        <input
+                                            type="number"
+                                            value={editValues.qtd}
+                                            onChange={(e) =>
+                                                setEditValues({
+                                                    ...editValues,
+                                                    qtd: parseInt(e.target.value, 10),
+                                                })
+                                            }
+                                        />
+                                    ) : (
+                                        item.qtd
+                                    )}
+                                </td>
+                                <td>
+                                    {isEditing === item.id ? (
+                                        <>
+                                            <button
+                                                className="text-green-500"
+                                                onClick={() => saveEdit(item.id)}
+                                            >
+                                                Salvar
+                                            </button>
+                                            <button
+                                                className="text-red-500 ml-2"
+                                                onClick={cancelEditing}
+                                            >
+                                                Cancelar
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <EditButton
+                                                onClick={() => startEditing(item)}
+                                            />
+                                            <RemoveButton
+                                                onClick={() => handleRemove(item.id)}
+                                            />
+                                        </>
+                                    )}
                                 </td>
                             </tr>
                         ))}
